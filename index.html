@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Italian Rhythm & Word Stress — Interactive Lesson + Quiz</title>
+<meta name="description" content="Interactive Italian quiz based on a lesson about rhythm and word stress: golden rule (penultimate), common exceptions, clitic attachments, and accent marks." />
+<style>
+  :root{
+    --bg:#0f172a; --card:#111827; --ink:#e5e7eb; --muted:#9ca3af;
+    --accent:#22d3ee; --accent2:#a78bfa; --good:#34d399; --bad:#f87171;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+    color:var(--ink);
+    background: radial-gradient(1200px 900px at 10% -10%, #0b1220, var(--bg));
+    line-height:1.6;
+  }
+  header{ text-align:center; padding:clamp(18px,4vw,48px) 16px 8px }
+  h1{ margin:0 0 6px; font-size:clamp(1.4rem,3.4vw,2.4rem) }
+  .sub{ color:var(--muted); max-width:1000px; margin:0 auto }
+  .wrap{ max-width:1100px; margin: 20px auto 80px; padding:0 16px }
+  .tabs{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin: 14px 0 10px }
+  .tab{
+    background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.12); color:var(--ink);
+    padding:8px 12px; border-radius:12px; cursor:pointer; font-weight:700;
+  }
+  .tab[aria-selected="true"]{ outline:2px solid var(--accent2) }
+  .panel{
+    display:none; background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01));
+    border:1px solid rgba(255,255,255,.08); border-radius:18px; overflow:clip;
+    box-shadow:0 10px 30px rgba(0,0,0,.35); margin-bottom:18px;
+  }
+  .panel.active{ display:block }
+  .panel header{ padding:12px 16px; border-bottom:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.03) }
+  .panel header h2{ margin:0; font-size:1.1rem }
+  .content{ padding:16px; display:grid; gap:16px }
+  .card{ background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:14px }
+  .grid{ display:grid; gap:12px }
+  .cols-2{ grid-template-columns:repeat(auto-fit,minmax(260px,1fr)) }
+  .cols-3{ grid-template-columns:repeat(auto-fit,minmax(220px,1fr)) }
+  .muted{ color:var(--muted) }
+  .badge{ display:inline-block; padding:4px 10px; border-radius:999px; font-weight:800; border:1px solid rgba(255,255,255,.2) }
+  .good{ color:#042615; background:linear-gradient(90deg,rgba(52,211,153,.25),rgba(34,197,94,.18)); border-color:rgba(52,211,153,.45) }
+  .bad{ color:#2b0c0c; background:linear-gradient(90deg,rgba(248,113,113,.25),rgba(239,68,68,.18)); border-color:rgba(248,113,113,.45) }
+  .actions{ display:flex; gap:10px; flex-wrap:wrap; align-items:center }
+  button{
+    border:1px solid rgba(255,255,255,.2); background:linear-gradient(90deg,var(--accent),var(--accent2));
+    color:#04131a; padding:10px 14px; border-radius:12px; font-weight:800; cursor:pointer;
+  }
+  button.secondary{ background:transparent; color:var(--ink) }
+  label.option{
+    display:flex; gap:10px; align-items:flex-start; padding:10px 12px;
+    background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:10px; cursor:pointer;
+  }
+  input[type="radio"]{ transform:translateY(3px) }
+  input[type="text"]{ width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.15); background:#0b1220; color:var(--ink) }
+  .syllable{
+    display:inline-block; padding:.15rem .5rem; margin:.15rem; border:1px dashed rgba(255,255,255,.25);
+    border-radius:10px; cursor:pointer; user-select:none;
+  }
+  .syllable.selected{ outline:2px solid var(--accent) }
+  .row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
+  .keypad button{ background:#0b1220; color:var(--ink); border:1px solid rgba(255,255,255,.2) }
+  .bins{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px }
+  .bin{ border:2px dashed rgba(255,255,255,.25); border-radius:12px; min-height:58px; padding:8px }
+  .draggable{ padding:8px 10px; border:1px dashed rgba(255,255,255,.25); border-radius:10px; background:rgba(255,255,255,.04); cursor:grab; display:inline-block; margin:6px 6px 0 0 }
+  .progress{ height:10px; background:rgba(255,255,255,.08); border-radius:999px; overflow:hidden; margin:6px 0 16px }
+  .progress > div{ height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); width:0% }
+  footer{ text-align:center; color:var(--muted); padding:26px 16px 50px }
+</style>
+</head>
+<body>
+<header>
+  <h1>Italian Rhythm & Word Stress — Interactive Lesson + Quiz</h1>
+  <p class="sub">Why does Italian sound so musical? Because of its rhythm — and rhythm comes from <strong>word stress</strong>. Learn the golden rule, spot predictable exceptions, master accent marks, and practice with clitic-packed “super-words”.</p>
+</header>
+
+<div class="wrap">
+  <div class="tabs" role="tablist">
+    <button class="tab" aria-selected="true" aria-controls="p1" id="t1">1) Golden Rule</button>
+    <button class="tab" aria-selected="false" aria-controls="p2" id="t2">2) Common Exceptions</button>
+    <button class="tab" aria-selected="false" aria-controls="p3" id="t3">3) Accent Marks</button>
+    <button class="tab" aria-selected="false" aria-controls="p4" id="t4">4) Clitics & Long Words</button>
+    <button class="tab" aria-selected="false" aria-controls="p5" id="t5">5) Mixed Quiz</button>
+  </div>
+
+  <div class="progress" aria-label="Overall progress"><div id="overallProgress"></div></div>
+
+  <!-- Panel 1: Golden Rule -->
+  <section class="panel active" id="p1" role="tabpanel" aria-labelledby="t1">
+    <header><h2>The Golden Rule: stress the <em>penultimate</em> syllable</h2></header>
+    <div class="content grid cols-2">
+      <div class="card">
+        <h3>Listen with your eyes — Click the stressed syllable</h3>
+        <p class="muted">In most Italian words, the stress falls on the <strong>second to last</strong> syllable. Pick the stressed one.</p>
+        <div id="p1_click"></div>
+        <div class="actions">
+          <button data-check="p1_click">Check</button>
+          <button class="secondary" data-reset="p1_click">Reset</button>
+          <span class="badge" id="p1_click_score"></span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>True or False — Golden rule</h3>
+        <div id="p1_tf" class="grid">
+          <!-- injected -->
+        </div>
+        <div class="actions">
+          <button data-check="p1_tf">Check</button>
+          <button class="secondary" data-reset="p1_tf">Reset</button>
+          <span class="badge" id="p1_tf_score"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Panel 2: Exceptions -->
+  <section class="panel" id="p2" role="tabpanel" aria-labelledby="t2">
+    <header><h2>Predictable Exceptions: antepenultimate & final stress</h2></header>
+    <div class="content">
+      <div class="card">
+        <h3>Drag words into the correct bin</h3>
+        <p class="muted">Some common patterns: many words like <em>tèlefono</em>, <em>góndola</em>, and forms like <em>párlano</em> are stressed on the <strong>third-to-last</strong> syllable. Final stress is <em>always</em> shown with a written accent (e.g., <em>caffè</em>, <em>perché</em>, <em>università</em>, <em>ventitré</em>).</p>
+        <div class="bins">
+          <div class="bin" data-bin="penult"><strong>Penultimate (default)</strong></div>
+          <div class="bin" data-bin="antepenult"><strong>Third-to-last</strong></div>
+          <div class="bin" data-bin="final"><strong>Final (accent shown)</strong></div>
+        </div>
+        <div id="p2_words" class="row" style="margin-top:8px"></div>
+        <div class="actions" style="margin-top:8px">
+          <button id="p2_check">Check</button>
+          <button class="secondary" id="p2_reset">Reset</button>
+          <span class="badge" id="p2_score"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Panel 3: Accent marks -->
+  <section class="panel" id="p3" role="tabpanel" aria-labelledby="t3">
+    <header><h2>Accent Marks: pronunciation & meaning</h2></header>
+    <div class="content grid cols-2">
+      <div class="card">
+        <h3>Type the correct form with accents</h3>
+        <p class="muted">Use the keypad. Final stress is written: <em>caffè, perché, università, ventitré</em>.</p>
+        <div class="row keypad" aria-label="Italian accents">
+          <button type="button" data-ins="à">à</button>
+          <button type="button" data-ins="è">è</button>
+          <button type="button" data-ins="é">é</button>
+          <button type="button" data-ins="ì">ì</button>
+          <button type="button" data-ins="ò">ò</button>
+          <button type="button" data-ins="ù">ù</button>
+        </div>
+        <div class="grid">
+          <label>caffe → <input id="p3f1" placeholder=""/></label>
+          <label>perche → <input id="p3f2" placeholder=""/></label>
+          <label>universita → <input id="p3f3" placeholder=""/></label>
+          <label>ventitre → <input id="p3f4" placeholder=""/></label>
+        </div>
+        <div class="actions">
+          <button data-check-fill="p3f">Check</button>
+          <button class="secondary" data-reset-fill="p3f">Reset</button>
+          <span class="badge" id="p3_fill_score"></span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Meaning switches with accents (mini quiz)</h3>
+        <p class="muted"><em>è</em> = “is”, <em>e</em> = “and”; <em>sì</em> = “yes”, <em>si</em> = “oneself”. Pick the correct form.</p>
+        <div id="p3_mc" class="grid">
+          <!-- injected -->
+        </div>
+        <div class="actions">
+          <button data-check="p3_mc">Check</button>
+          <button class="secondary" data-reset="p3_mc">Reset</button>
+          <span class="badge" id="p3_mc_score"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Panel 4: Clitics & long words -->
+  <section class="panel" id="p4" role="tabpanel" aria-labelledby="t4">
+    <header><h2>Clitics create “long words” — stress stays put</h2></header>
+    <div class="content grid cols-2">
+      <div class="card">
+        <h3>Build the word</h3>
+        <p class="muted">Commands with attached pronouns pack a whole sentence into one word. The original stress stays on the verb.</p>
+        <div class="row">
+          <strong>manda</strong> + 
+          <select id="p4_pron1">
+            <option value="">(choose)</option>
+            <option value="mi">mi</option>
+            <option value="me">me</option>
+            <option value="ti">ti</option>
+            <option value="gli">gli</option>
+          </select> +
+          <select id="p4_pron2">
+            <option value="">(choose)</option>
+            <option value="lo">lo</option>
+            <option value="la">la</option>
+            <option value="li">li</option>
+          </select>
+          <button id="p4_build">Build</button>
+        </div>
+        <div id="p4_out" class="card" style="margin-top:10px"></div>
+      </div>
+
+      <div class="card">
+        <h3>Click the stressed syllable</h3>
+        <p class="muted">For your built word (e.g., <em>mandamelo</em>), click where the stress falls.</p>
+        <div id="p4_click"></div>
+        <div class="actions">
+          <button id="p4_check">Check</button>
+          <button class="secondary" id="p4_reset">Reset</button>
+          <span class="badge" id="p4_score"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Panel 5: Mixed quiz -->
+  <section class="panel" id="p5" role="tabpanel" aria-labelledby="t5">
+    <header><h2>Mixed Quiz: rules → practice</h2></header>
+    <div class="content grid cols-2">
+      <div class="card">
+        <h3>Multiple Choice</h3>
+        <div id="p5_mc" class="grid">
+          <!-- injected -->
+        </div>
+        <div class="actions">
+          <button data-check="p5_mc">Check</button>
+          <button class="secondary" data-reset="p5_mc">Reset</button>
+          <span class="badge" id="p5_mc_score"></span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Short answer (type)</h3>
+        <p class="muted">Answer in a few words.</p>
+        <label>What is the “golden rule” for Italian word stress? <input id="p5_s1" type="text" /></label>
+        <label>How do you know when stress is final in spelling? <input id="p5_s2" type="text" /></label>
+        <div class="actions">
+          <button id="p5_s_check">Check</button>
+          <button class="secondary" id="p5_s_reset">Reset</button>
+          <span class="badge" id="p5_s_score"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="card">
+    <div class="actions">
+      <strong>Total Score</strong>
+      <span id="totalBadge" class="badge">0%</span>
+      <button class="secondary" id="exportBtn">Export Results (JSON)</button>
+    </div>
+  </div>
+</div>
+
+<footer>Made with ♥ for learners of Italian — follow the beat, find the stress, speak more musically.</footer>
+
+<script>
+/* ---------- shared state & helpers ---------- */
+const state = { points:{} };
+function setScore(key, correct, total){
+  state.points[key] = {correct,total};
+  updateOverall();
+}
+function updateOverall(){
+  let c=0,t=0;
+  Object.values(state.points).forEach(v=>{ c+=v.correct; t+=v.total; });
+  const pct = t ? Math.round((c/t)*100) : 0;
+  document.getElementById('totalBadge').textContent = pct + '%';
+  document.getElementById('overallProgress').style.width = pct + '%';
+}
+function badge(el, correct, total){
+  el.textContent = correct + ' / ' + total;
+  el.className = 'badge ' + (correct/total >= 0.6 ? 'good' : 'bad');
+}
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected','false'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.setAttribute('aria-selected','true');
+    document.getElementById(tab.getAttribute('aria-controls')).classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+
+/* ---------- Panel 1: Golden Rule ---------- */
+const P1_WORDS = [
+  // word, syllables[], stressedIndex
+  ['gelato',['ge','la','to'],1],
+  ['soprano',['so','pra','no'],1],
+  ['perpendicolari',['per','pen','di','co','la','ri'],4],
+  ['italiano',['i','ta','lia','no'],2],
+  ['ragazzo',['ra','gaz','zo'],1]
+];
+function renderP1Click(){
+  const host = document.getElementById('p1_click'); host.innerHTML='';
+  P1_WORDS.forEach((w,wi)=>{
+    const wrap = document.createElement('div'); wrap.className='card';
+    wrap.innerHTML = '<div><strong>'+w[0]+'</strong></div>';
+    const row = document.createElement('div');
+    w[1].forEach((sy,i)=>{
+      const span = document.createElement('span');
+      span.className='syllable'; span.textContent=sy; span.dataset.idx=i; span.dataset.wi=wi;
+      span.addEventListener('click', ()=>{
+        row.querySelectorAll('.syllable').forEach(s=>s.classList.remove('selected'));
+        span.classList.add('selected');
+      });
+      row.appendChild(span);
+    });
+    wrap.appendChild(row); host.appendChild(wrap);
+  });
+}
+renderP1Click();
+
+const P1_TF = [
+  {q:'In Italian, most words are stressed on the penultimate syllable.', a:true},
+  {q:'If stress is final, it is usually not marked in writing.', a:false},
+  {q:'“gelato” and “soprano” follow the golden rule.', a:true},
+  {q:'“caffè” has penultimate stress.', a:false}
+];
+function renderP1TF(){
+  const host = document.getElementById('p1_tf'); host.innerHTML='';
+  P1_TF.forEach((it,idx)=>{
+    const wrap = document.createElement('div'); wrap.className='card';
+    wrap.innerHTML = '<strong>Q'+(idx+1)+':</strong> '+it.q;
+    [['True',true],['False',false]].forEach((pair,i)=>{
+      const id='p1tf_'+idx+'_'+i;
+      const lab=document.createElement('label'); lab.className='option'; lab.setAttribute('for',id);
+      const inp=document.createElement('input'); inp.type='radio'; inp.name='p1tf_'+idx; inp.id=id; inp.value=pair[1];
+      const span=document.createElement('span'); span.textContent=pair[0];
+      lab.appendChild(inp); lab.appendChild(span); wrap.appendChild(lab);
+    });
+    host.appendChild(wrap);
+  });
+}
+renderP1TF();
+
+document.querySelector('[data-check="p1_click"]').addEventListener('click', ()=>{
+  let total=0,correct=0;
+  document.querySelectorAll('#p1_click .card').forEach((card,wi)=>{
+    total++;
+    const picked = card.querySelector('.syllable.selected');
+    const ans = P1_WORDS[wi][2];
+    if (picked && Number(picked.dataset.idx)===ans) correct++;
+  });
+  badge(document.getElementById('p1_click_score'), correct,total);
+  setScore('p1_click',correct,total);
+});
+document.querySelector('[data-reset="p1_click"]').addEventListener('click', ()=>{
+  document.querySelectorAll('#p1_click .syllable').forEach(s=>s.classList.remove('selected'));
+  document.getElementById('p1_click_score').textContent='';
+  delete state.points.p1_click; updateOverall();
+});
+
+document.querySelector('[data-check="p1_tf"]').addEventListener('click', ()=>{
+  let total=0,correct=0;
+  P1_TF.forEach((it,idx)=>{
+    total++;
+    const chosen = document.querySelector('input[name="p1tf_'+idx+'"]:checked');
+    if (chosen && String(it.a)===chosen.value) correct++;
+  });
+  badge(document.getElementById('p1_tf_score'),correct,total);
+  setScore('p1_tf',correct,total);
+});
+document.querySelector('[data-reset="p1_tf"]').addEventListener('click', ()=>{
+  document.querySelectorAll('#p1_tf input').forEach(i=>i.checked=false);
+  document.getElementById('p1_tf_score').textContent='';
+  delete state.points.p1_tf; updateOverall();
+});
+
+/* ---------- Panel 2: Exceptions (bins) ---------- */
+const P2_BANK = [
+  {w:'gelato',bin:'penult'},
+  {w:'soprano',bin:'penult'},
+  {w:'perpendicolari',bin:'penult'},
+  {w:'telefono',bin:'antepenult'},   // tè-le-fo-no
+  {w:'gondola',bin:'antepenult'},    // gón-do-la
+  {w:'parlano',bin:'antepenult'},    // pár-la-no
+  {w:'caffè',bin:'final'},
+  {w:'perché',bin:'final'},
+  {w:'università',bin:'final'},
+  {w:'ventitré',bin:'final'}
+];
+function renderP2(){
+  const host = document.getElementById('p2_words'); host.innerHTML='';
+  P2_BANK.forEach(item=>{
+    const tag = document.createElement('span');
+    tag.className='draggable'; tag.textContent=item.w; tag.draggable=true; tag.dataset.bin=item.bin;
+    tag.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', item.w); tag.classList.add('ghost'); });
+    tag.addEventListener('dragend', ()=>tag.classList.remove('ghost'));
+    host.appendChild(tag);
+  });
+  document.querySelectorAll('.bin').forEach(bin=>{
+    bin.addEventListener('dragover', e=>{ e.preventDefault(); bin.style.background='rgba(34,211,238,.12)'; });
+    bin.addEventListener('dragleave', ()=>{ bin.style.background=''; });
+    bin.addEventListener('drop', e=>{
+      e.preventDefault(); bin.style.background='';
+      const word = e.dataTransfer.getData('text/plain');
+      const el = Array.from(document.querySelectorAll('#p2_words .draggable')).find(x=>x.textContent===word);
+      if (el) bin.appendChild(el);
+    });
+  });
+}
+renderP2();
+
+document.getElementById('p2_check').addEventListener('click', ()=>{
+  let total=0,correct=0;
+  document.querySelectorAll('.bin').forEach(bin=>{
+    Array.from(bin.querySelectorAll('.draggable')).forEach(item=>{
+      total++;
+      if (item.dataset.bin === bin.dataset.bin) correct++;
+    });
+  });
+  badge(document.getElementById('p2_score'),correct,total);
+  setScore('p2',correct,total);
+});
+document.getElementById('p2_reset').addEventListener('click', ()=>{
+  renderP2();
+  document.getElementById('p2_score').textContent='';
+  delete state.points.p2; updateOverall();
+});
+
+/* ---------- Panel 3: Accents ---------- */
+let activeInput=null;
+document.addEventListener('focusin', e=>{
+  if (e.target.tagName==='INPUT' && e.target.type==='text') activeInput=e.target;
+});
+document.querySelectorAll('.keypad [data-ins]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    if (!activeInput) return;
+    const s = activeInput.selectionStart, v = activeInput.value, ins = btn.dataset.ins;
+    activeInput.value = v.slice(0,s) + ins + v.slice(s);
+    activeInput.focus(); activeInput.selectionStart = activeInput.selectionEnd = s+ins.length;
+  });
+});
+
+const P3_FILL = {
+  p3f1:['caffè'], p3f2:['perché'], p3f3:['università'], p3f4:['ventitré']
+};
+document.querySelector('[data-check-fill="p3f"]').addEventListener('click', ()=>{
+  let total=0,correct=0;
+  for (const id in P3_FILL){
+    total++;
+    const v = document.getElementById(id).value.trim().toLowerCase();
+    if (P3_FILL[id].includes(v)) correct++;
+  }
+  badge(document.getElementById('p3_fill_score'),correct,total);
+  setScore('p3fill',correct,total);
+});
+document.querySelector('[data-reset-fill="p3f"]').addEventListener('click', ()=>{
+  Object.keys(P3_FILL).forEach(id=>document.getElementById(id).value='');
+  document.getElementById('p3_fill_score').textContent='';
+  delete state.points.p3fill; updateOverall();
+});
+
+const P3_MC = [
+  {q:'___ è pronta la pizza, ___ la mangiamo.', opts:[['E / è'],['È / e'],['E / e']], a:1}, // È ... e ...
+  {q:'“Yes, it’s true” = ___, ___ vero.', opts:[['Si / e'],['Sì / è'],['Sì / e']], a:1},
+  {q:'Choose the final-stress word (marked):', opts:[['telefono'],['caffè'],['gondola']], a:1}
+];
+function renderP3MC(){
+  const host = document.getElementById('p3_mc'); host.innerHTML='';
+  P3_MC.forEach((it,idx)=>{
+    const wrap = document.createElement('div'); wrap.className='card';
+    wrap.innerHTML='<strong>Q'+(idx+1)+':</strong> '+it.q;
+    it.opts.forEach((o,i)=>{
+      const id='p3mc_'+idx+'_'+i;
+      const lab=document.createElement('label'); lab.className='option'; lab.setAttribute('for',id);
+      const inp=document.createElement('input'); inp.type='radio'; inp.name='p3mc_'+idx; inp.id=id; inp.value=i;
+      const span=document.createElement('span'); span.textContent=o.join?o.join(''):o;
+      lab.appendChild(inp); lab.appendChild(span); wrap.appendChild(lab);
+    });
+    host.appendChild(wrap);
+  });
+}
+renderP3MC();
+
+document.querySelector('[data-check="p3_mc"]').addEventListener('click', ()=>{
+  let total=0,correct=0;
+  P3_MC.forEach((it,idx)=>{
+    total++; const ch=document.querySelector('input[name="p3mc_'+idx+'"]:checked');
+    if (ch && Number(ch.value)===it.a) correct++;
+  });
+  badge(document.getElementById('p3_mc_score'),correct,total);
+  setScore('p3mc',correct,total);
+});
+document.querySelector('[data-reset="p3_mc"]').addEventListener('click', ()=>{
+  document.querySelectorAll('#p3_mc input').forEach(i=>i.checked=false);
+  document.getElementById('p3_mc_score').textContent='';
+  delete state.points.p3mc; updateOverall();
+});
+
+/* ---------- Panel 4: Clitics ---------- */
+function chunkSyllables(word){
+  // very simple hyphenation helper for our demo words
+  const map = {
+    'mandamelo':['man','da','me','lo'],
+    'mandamela':['man','da','me','la'],
+    'mandameli':['man','da','me','li'],
+    'mandaglielo':['man','da','glie','lo']
+  };
+  return map[word] || [word];
+}
+let builtWord = '';
+function renderP4Click(){
+  const host = document.getElementById('p4_click'); host.innerHTML='';
+  if (!builtWord) return;
+  const syl = chunkSyllables(builtWord);
+  const row = document.createElement('div');
+  syl.forEach((s,i)=>{
+    const span = document.createElement('span');
+    span.className='syllable'; span.textContent=s; span.dataset.idx=i;
+    span.addEventListener('click', ()=>{
+      row.querySelectorAll('.syllable').forEach(x=>x.classList.remove('selected'));
+      span.classList.add('selected');
+    });
+    row.appendChild(span);
+  });
+  host.appendChild(row);
+}
+document.getElementById('p4_build').addEventListener('click', ()=>{
+  const a = document.getElementById('p4_pron1').value;
+  const b = document.getElementById('p4_pron2').value;
+  const out = document.getElementById('p4_out');
+  out.textContent='';
+  if (!a || !b){ out.textContent='Choose two pronouns (e.g., me + lo).'; builtWord=''; renderP4Click(); return; }
+  // me + lo/la/li are all valid after “manda-”
+  let core = 'manda';
+  let word = core + a + b; // e.g., mandamelo
+  builtWord = word;
+  out.innerHTML = '<strong>'+word+'</strong> → stress stays on <em>man-DA-…</em> (original verb).';
+  renderP4Click();
+});
+document.getElementById('p4_check').addEventListener('click', ()=>{
+  if (!builtWord){ document.getElementById('p4_score').textContent=''; return; }
+  const picked = document.querySelector('#p4_click .syllable.selected');
+  const syl = chunkSyllables(builtWord);
+  // stress stays on 'da' (index 1) for our demo set
+  const ans = 1;
+  const correct = (picked && Number(picked.dataset.idx)===ans) ? 1 : 0;
+  badge(document.getElementById('p4_score'),correct,1);
+  setScore('p4',correct,1);
+});
+document.getElementById('p4_reset').addEventListener('click', ()=>{
+  builtWord=''; document.getElementById('p4_out').textContent='';
+  document.getElementById('p4_click').innerHTML='';
+  document.getElementById('p4_score').textContent='';
+  delete state.points.p4; updateOverall();
+});
+
+/* ---------- Panel 5: Mixed MC + short answers ---------- */
+const P5_MC = [
+  {q:'Where is the stress in “gelato”?', opts:['ge-','la-','-to'], a:1},
+  {q:'Which word is antepenultimate-stress?', opts:['università','telefono','gelato'], a:1},
+  {q:'Final stress is…', opts:['rare and unmarked','marked with an accent','never allowed'], a:1},
+  {q:'Pick the “long word” made by clitics:', opts:['parlano','mandamelo','soprano'], a:1}
+];
+function renderP5MC(){
+  const host=document.getElementById('p5_mc'); host.innerHTML='';
+  P5_MC.forEach((it,idx)=>{
+    const wrap=document.createElement('div'); wrap.className='card'; wrap.innerHTML='<strong>Q'+(idx+1)+':</strong> '+it.q;
+    it.opts.forEach((o,i)=>{
+      const id='p5mc_'+idx+'_'+i;
+      const lab=document.createElement('label'); lab.className='option'; lab.setAttribute('for',id);
+      const inp=document.createElement('input'); inp.type='radio'; inp.name='p5mc_'+idx; inp.id=id; inp.value=i;
+      const span=document.createElement('span'); span.textContent=o;
+      lab.appendChild(inp); lab.appendChild(span); wrap.appendChild(lab);
+    });
+    host.appendChild(wrap);
+  });
+}
+renderP5MC();
+document.querySelector('[data-check="p5_mc"]').addEventListener('click', ()=>{
+  let total=0,correct=0;
+  P5_MC.forEach((it,idx)=>{
+    total++; const ch=document.querySelector('input[name="p5mc_'+idx+'"]:checked');
+    if (ch && Number(ch.value)===it.a) correct++;
+  });
+  badge(document.getElementById('p5_mc_score'),correct,total);
+  setScore('p5mc',correct,total);
+});
+document.querySelector('[data-reset="p5_mc"]').addEventListener('click', ()=>{
+  document.querySelectorAll('#p5_mc input').forEach(i=>i.checked=false);
+  document.getElementById('p5_mc_score').textContent='';
+  delete state.points.p5mc; updateOverall();
+});
+
+document.getElementById('p5_s_check').addEventListener('click', ()=>{
+  const a = document.getElementById('p5_s1').value.trim().toLowerCase();
+  const b = document.getElementById('p5_s2').value.trim().toLowerCase();
+  let correct=0, total=2;
+  if (a.includes('penultimate') || a.includes('second to last')) correct++;
+  if (b.includes('accent')) correct++;
+  badge(document.getElementById('p5_s_score'),correct,total);
+  setScore('p5s',correct,total);
+});
+document.getElementById('p5_s_reset').addEventListener('click', ()=>{
+  document.getElementById('p5_s1').value=''; document.getElementById('p5_s2').value='';
+  document.getElementById('p5_s_score').textContent='';
+  delete state.points.p5s; updateOverall();
+});
+
+/* ---------- export JSON ---------- */
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const data = { timestamp:new Date().toISOString(), results: state.points };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='italian_stress_results.json'; a.click();
+  URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>
